@@ -5,21 +5,20 @@ import './App.css';
 
 function App() {
   const [originalUrl, setOriginalUrl] = useState('');
-  const [shortUrl, setShortUrl] = useState('');
+  const [shortCode, setShortCode] = useState('');
   const [error, setError] = useState('');
   const qrRef = useRef();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setShortUrl('');
+    setShortCode('');
     try {
       const res = await axios.post('http://localhost:5054/api/url/shorten', originalUrl, {
         headers: { 'Content-Type': 'application/json' }
       });
       const code = res.data.shortCode;
-      const fullUrl = `http://localhost:5054/api/url/${code}`;
-      setShortUrl(fullUrl);
+      setShortCode(code); // only show the code
     } catch (err) {
       if (err.response && err.response.data) {
         setError(err.response.data);
@@ -55,13 +54,20 @@ function App() {
 
         {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
 
-        {shortUrl && (
+        {shortCode && (
           <div className="result">
             <p>
-              Short URL: <a href={shortUrl} target="_blank" rel="noreferrer">{shortUrl}</a>
-            </p>
+      Short Link:{" "}
+      <a
+        href={`http://localhost:5054/api/url/${shortCode}`}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {shortCode}
+      </a>
+    </p>
             <div ref={qrRef} className="qr">
-              <QRCodeCanvas value={shortUrl} size={180} />
+              <QRCodeCanvas value={`http://localhost:5054/api/url/${shortCode}`} size={180} />
             </div>
             <button onClick={downloadQR} className="download-btn">Download QR Code</button>
           </div>
