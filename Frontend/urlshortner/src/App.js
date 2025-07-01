@@ -6,10 +6,13 @@ import './App.css';
 function App() {
   const [originalUrl, setOriginalUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
+  const [error, setError] = useState('');
   const qrRef = useRef();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setShortUrl('');
     try {
       const res = await axios.post('http://localhost:5054/api/url/shorten', originalUrl, {
         headers: { 'Content-Type': 'application/json' }
@@ -18,7 +21,11 @@ function App() {
       const fullUrl = `http://localhost:5054/api/url/${code}`;
       setShortUrl(fullUrl);
     } catch (err) {
-      alert("Something went wrong");
+      if (err.response && err.response.data) {
+        setError(err.response.data);
+      } else {
+        setError("Something went wrong");
+      }
     }
   };
 
@@ -45,6 +52,8 @@ function App() {
           />
           <button type="submit">Shorten</button>
         </form>
+
+        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
 
         {shortUrl && (
           <div className="result">
